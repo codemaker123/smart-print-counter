@@ -1,17 +1,31 @@
 <template>
-  <div class="self-pickup-container">
+  <div class="info-entry-container">
     <div class="header">
-      <h1>委托自提</h1>
+      <h1>信息录入</h1>
     </div>
     <div class="content">
       <div class="question-box">
-        <h2 class="instruction-text">是否有预约码？</h2>
+        <div class="input-container">
+          <label for="reservation-code">输入预约码</label>
+          <input 
+            type="text" 
+            id="reservation-code" 
+            v-model="reservationCode" 
+            placeholder="请输入预约码"
+          />
+        </div>
+        <div class="input-container">
+          <label for="license-plate">车牌号码</label>
+          <input 
+            type="text" 
+            id="license-plate" 
+            v-model="licensePlate" 
+            placeholder="请输入车牌号码"
+          />
+        </div>
         <div class="options">
-          <button class="option-btn yes-btn" @click="handleYes">
-            <span class="button-text">是</span>
-          </button>
-          <button class="option-btn no-btn" @click="handleNo">
-            <span class="button-text">否</span>
+          <button class="option-btn yes-btn" @click="handleSubmit">
+            <span class="button-text">提交</span>
           </button>
         </div>
       </div>
@@ -25,22 +39,22 @@
 import Background from '@/components/Background.vue';
 
 export default {
-  name: 'SelfPickup',
+  name: 'InfoEntry',
   components: {
     Background
   },
+  data() {
+    return {
+      reservationCode: '',
+      licensePlate: ''
+    }
+  },
   methods: {
-    handleYes() {
-      // 处理有预约码的情况
-      console.log('用户选择：有预约码');
-      // 这里可以添加后续逻辑，如跳转到输入预约码的页面
-      this.$router.push('/info-entry');
-    },
-    handleNo() {
-      // 处理没有预约码的情况
-      console.log('用户选择：没有预约码');
-      // 这里可以添加后续逻辑
-      this.$router.push('/info-entry');
+    handleSubmit() {
+      // 处理提交信息的逻辑
+      console.log('提交的预约码:', this.reservationCode);
+      console.log('提交的车牌号码:', this.licensePlate);
+      // 这里可以添加后续逻辑，如验证和提交数据
     }
   }
 }
@@ -49,18 +63,16 @@ export default {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
 
-.self-pickup-container {
+.info-entry-container {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  /* 移除原有背景，使用Background组件 */
   color: white;
   font-family: 'Noto Sans SC', sans-serif;
   position: relative;
   overflow: hidden;
 }
 
-/* 添加背景组件样式 */
 .page-background {
   position: absolute;
   top: 0;
@@ -105,15 +117,15 @@ export default {
   height: 500px;
   padding: 80px;
   text-align: center;
-  background: rgba(240, 244, 255, 0.1); /* 降低透明度 */
+  background: rgba(240, 244, 255, 0.1);
   border-radius: 29px;
   box-shadow: 
-    0 0 36px rgba(120, 160, 255, 0.2), /* 调低亮度 */
-    0 0 72px rgba(120, 160, 255, 0.05); /* 调低亮度 */
+    0 0 36px rgba(120, 160, 255, 0.2),
+    0 0 72px rgba(120, 160, 255, 0.05);
   backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.15); /* 调低亮度 */
+  border: 1px solid rgba(255, 255, 255, 0.15);
   background-image: 
-    linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(255, 255, 255, 0.15) 100%); /* 调低亮度 */
+    linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(255, 255, 255, 0.15) 100%);
   transition: all 0.5s ease;
   position: relative;
   overflow: hidden;
@@ -131,33 +143,55 @@ export default {
   bottom: 0;
   background: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.07) 0%, /* 调低亮度 */
-    rgba(255, 255, 255, 0.03) 50%, /* 调低亮度 */
+    rgba(255, 255, 255, 0.07) 0%,
+    rgba(255, 255, 255, 0.03) 50%,
     rgba(255, 255, 255, 0) 100%
   );
   z-index: 1;
   pointer-events: none;
 }
 
-.instruction-text {
-  font-family: 'Noto Sans SC', sans-serif;
-  font-size: 38px;
-  color: #fff;
-  margin-bottom: 80px;
-  text-shadow: 
-    0 0 6px rgba(120, 160, 255, 0.6), /* 调低亮度 */
-    0 0 12px rgba(120, 160, 255, 0.3); /* 调低亮度 */
-  letter-spacing: 1.2px;
-  text-align: center;
+.input-container {
+  margin-bottom: 30px;
+  text-align: left;
   position: relative;
   z-index: 10;
-  transition: all 0.5s ease;
+}
+
+.input-container label {
+  display: block;
+  font-size: 24px;
+  margin-bottom: 10px;
+  color: #fff;
+  text-shadow: 0 0 6px rgba(120, 160, 255, 0.6);
+}
+
+.input-container input {
+  width: 100%;
+  padding: 15px 20px;
+  font-size: 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 162, 255, 0.1);
+}
+
+.input-container input:focus {
+  border-color: rgba(0, 162, 255, 0.5);
+  box-shadow: 0 0 15px rgba(0, 162, 255, 0.3);
+}
+
+.input-container input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .options {
   display: flex;
-  justify-content: space-around;
-  margin-top: 50px;
+  justify-content: center;
+  margin-top: 40px;
   position: relative;
   z-index: 10;
 }
@@ -181,15 +215,8 @@ export default {
 .yes-btn {
   background: linear-gradient(135deg, #0072ff, #00c6ff);
   box-shadow: 
-    0 0 8px rgba(0, 162, 255, 0.3), /* 调低亮度 */
-    0 0 16px rgba(0, 162, 255, 0.2); /* 调低亮度 */
-}
-
-.no-btn {
-  background: linear-gradient(135deg, #ff416c, #ff4b2b);
-  box-shadow: 
-    0 0 8px rgba(255, 65, 108, 0.3), /* 调低亮度 */
-    0 0 16px rgba(255, 65, 108, 0.2); /* 调低亮度 */
+    0 0 8px rgba(0, 162, 255, 0.3),
+    0 0 16px rgba(0, 162, 255, 0.2);
 }
 
 .option-btn:hover {
@@ -198,22 +225,11 @@ export default {
 
 .yes-btn:hover {
   box-shadow: 
-    0 0 10px rgba(0, 162, 255, 0.5), /* 调低亮度 */
-    0 0 20px rgba(0, 162, 255, 0.3); /* 调低亮度 */
-}
-
-.no-btn:hover {
-  box-shadow: 
-    0 0 10px rgba(255, 65, 108, 0.5), /* 调低亮度 */
-    0 0 20px rgba(255, 65, 108, 0.3); /* 调低亮度 */
+    0 0 10px rgba(0, 162, 255, 0.5),
+    0 0 20px rgba(0, 162, 255, 0.3);
 }
 
 .option-btn:active {
   transform: translateZ(10px) scale(0.95);
-}
-
-@keyframes rotateGlow {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 </style>

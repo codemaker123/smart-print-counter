@@ -2,6 +2,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import IdCardReader from '@/views/IdCardReader.vue'
 import SelfPickup from '@/views/SelfPickup.vue'
+// 导入新的视图组件
+import InfoEntry from '@/views/InfoEntry.vue'
 
 // Vue.use(VueRouter)
 
@@ -19,7 +21,12 @@ const routes = [
     path: '/self-pickup',
     name: 'SelfPickup',
     component: SelfPickup
-  }
+  },
+  {
+    path: '/info-entry',
+    name: 'InfoEntry',
+    component: InfoEntry
+  },
 ]
 
 const router = createRouter({
