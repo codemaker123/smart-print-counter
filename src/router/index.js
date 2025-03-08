@@ -1,13 +1,15 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
-// ... 其他导入
-import IdCardReader from '@/views/IdCardReader.vue';
-import SelfPickup from '@/views/SelfPickup.vue';
+// import Vue from 'vue'
+import { createRouter, createWebHistory } from 'vue-router'
+import IdCardReader from '@/views/IdCardReader.vue'
+import SelfPickup from '@/views/SelfPickup.vue'
 
-Vue.use(VueRouter)
+// Vue.use(VueRouter)
 
 const routes = [
-  // 其他路由...
+  {
+    path: '/',
+    redirect: '/id-card-reader'
+  },
   {
     path: '/id-card-reader',
     name: 'IdCardReader',
@@ -20,10 +22,15 @@ const routes = [
   }
 ]
 
-const router = new VueRouter({
-  mode: 'history',
-  base: process.env.BASE_URL,
+const router = createRouter({
+  history: createWebHistory(process.env.BASE_URL),
   routes
 })
+// 路由守卫
+// router.beforeEach((to, from, next) => {
+//   // 页面跳转前
+//   next()
+// }
+// )
 
 export default router

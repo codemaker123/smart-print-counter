@@ -14,7 +14,8 @@
     "springy": "^2.8.0",
     "styled-components": "^6.1.15",
     "three": "^0.174.0",
-    "vue": "^3.2.13"
+    "vue": "^3.2.13",
+    "vue-router": "^4.5.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
