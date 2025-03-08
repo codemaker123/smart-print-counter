@@ -1,6 +1,7 @@
 <template>
   <div class="app-container">
     <!-- <Header /> -->
+    <PageTitle />
     <Background />
     <CardReader />
     <!-- <Footer :status="systemStatus" /> -->
@@ -10,6 +11,7 @@
 <script setup>
 // import { ref } from 'vue'
 // import Header from './components/Header.vue'
+import PageTitle from './components/PageTitle.vue'
 import Background from './components/Background.vue'
 import CardReader from './components/CardReader.vue'
 // import Footer from './components/Footer.vue'
