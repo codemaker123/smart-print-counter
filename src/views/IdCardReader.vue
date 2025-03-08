@@ -195,6 +195,11 @@ export default {
     const threeCanvas = ref(null);
     const particleCanvas = ref(null);
     const isHovering = ref(false);
+    const scanSuccess = ref(false);
+    const scanError = ref(false);
+    const scanStatusText = ref('请将身份证放入读取区域');
+    const isScanning = ref(false);
+    const buttonText = ref('开始读取');
 
     const cornerPositions = [
       { top: '-5px', left: '-5px' },
@@ -290,22 +295,142 @@ export default {
       animateParticles();
     };
 
+    // 播放扫描音效
+    const playCardScanSound = () => {
+      try {
+        const audio = new Audio();
+        audio.src = '/sounds/card-scan.mp3'; // 需要添加相应的音效文件
+        audio.volume = 0.5;
+        audio.play().catch(e => console.log('音频播放失败:', e));
+      } catch (error) {
+        console.error('播放音效失败:', error);
+      }
+    };
+
+    // 播放成功音效
+    const playSuccessSound = () => {
+      try {
+        const audio = new Audio();
+        audio.src = '/sounds/success.mp3'; // 需要添加相应的音效文件
+        audio.volume = 0.5;
+        audio.play().catch(e => console.log('音频播放失败:', e));
+      } catch (error) {
+        console.error('播放音效失败:', error);
+      }
+    };
+
+    // 播放错误音效
+    const playErrorSound = () => {
+      try {
+        const audio = new Audio();
+        audio.src = '/sounds/error.mp3'; // 需要添加相应的音效文件
+        audio.volume = 0.5;
+        audio.play().catch(e => console.log('音频播放失败:', e));
+      } catch (error) {
+        console.error('播放音效失败:', error);
+      }
+    };
+
+    // 处理扫描按钮点击
     const handleScanButtonClick = () => {
+      if (isScanning.value) return;
+      
+      isScanning.value = true;
+      scanSuccess.value = false;
+      scanError.value = false;
+      buttonText.value = '读取中...';
+      scanStatusText.value = '正在读取身份证信息，请稍候';
+      
+      // 播放扫描音效
+      playCardScanSound();
+      
+      // 按钮动画
       anime({
         targets: '.scan-button',
         scale: [1, 1.1],
         opacity: [1, 0.8],
         duration: 1000,
-        easing: 'easeOutExpo',
-        complete: () => {
-          // 处理扫描逻辑
-        }
+        easing: 'easeOutExpo'
       });
+      
+      // 扫描动画
+      anime({
+        targets: '.scanner-inner',
+        boxShadow: [
+          '0 0 5px rgba(33, 150, 243, 0.5)',
+          '0 0 20px rgba(33, 150, 243, 0.8)',
+          '0 0 5px rgba(33, 150, 243, 0.5)'
+        ],
+        duration: 3000,
+        easing: 'easeInOutQuad'
+      });
+      
+      // 模拟扫描过程
+      setTimeout(() => {
+        isScanning.value = false;
+        const isSuccessful = Math.random() > 0.3;
+        
+        if (isSuccessful) {
+          scanSuccess.value = true;
+          scanError.value = false;
+          scanStatusText.value = '读取成功';
+          playSuccessSound();
+          
+          // 成功动画
+          anime({
+            targets: '.scanner-inner',
+            boxShadow: [
+              '0 0 5px rgba(76, 175, 80, 0.5)',
+              '0 0 20px rgba(76, 175, 80, 0.8)',
+              '0 0 5px rgba(76, 175, 80, 0.5)'
+            ],
+            duration: 1000,
+            easing: 'easeOutExpo'
+          });
+        } else {
+          scanSuccess.value = false;
+          scanError.value = true;
+          scanStatusText.value = '读取失败，请重试';
+          playErrorSound();
+          
+          // 失败动画
+          anime({
+            targets: '.scanner-inner',
+            boxShadow: [
+              '0 0 5px rgba(244, 67, 54, 0.5)',
+              '0 0 20px rgba(244, 67, 54, 0.8)',
+              '0 0 5px rgba(244, 67, 54, 0.5)'
+            ],
+            duration: 1000,
+            easing: 'easeOutExpo'
+          });
+        }
+        
+        buttonText.value = '开始读取';
+      }, 3000);
+    };
+
+    // 添加窗口大小调整监听
+    const handleResize = () => {
+      if (threeCanvas.value && particleCanvas.value) {
+        const renderer = new THREE.WebGLRenderer({ canvas: threeCanvas.value, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        
+        particleCanvas.value.width = window.innerWidth;
+        particleCanvas.value.height = window.innerHeight;
+      }
     };
 
     onMounted(() => {
       initThreeJS();
       initParticles();
+      
+      window.addEventListener('resize', handleResize);
+      
+      // 组件卸载时移除事件监听
+      return () => {
+        window.removeEventListener('resize', handleResize);
+      };
     });
 
     return {
@@ -313,6 +438,11 @@ export default {
       threeCanvas,
       particleCanvas,
       isHovering,
+      isScanning,
+      scanSuccess,
+      scanError,
+      scanStatusText,
+      buttonText,
       cornerPositions,
       handleScanButtonClick
     };
