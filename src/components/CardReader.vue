@@ -1,8 +1,8 @@
 <template>
   <div class="card-reader-container">
-    <div class="card-reader">
+    <div class="card-reader" :class="cardReaderClass">
       <!-- 指示文字 - 带有打字动画效果 -->
-      <div class="instruction-text" :class="{ 'typing-animation': !isReading }">
+      <div class="instruction-text" :class="instructionTextClass">
         {{ statusText }}
       </div>
       
@@ -45,7 +45,7 @@
         
         <!-- 扫描线 -->
         <div class="scan-line" v-if="isReading"></div>
-        <div class="scan-line-idle" v-else></div>
+        <div class="scan-line-idle" v-if="!isReading && !isSuccess && !hasError"></div>
         
         <!-- 完成后的粒子效果 -->
         <div class="particles" v-if="isSuccess"></div>
@@ -65,7 +65,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const isReading = ref(false)
 const hasError = ref(false)
@@ -73,6 +73,21 @@ const isSuccess = ref(false)
 const isHovering = ref(false)
 const buttonText = ref('开始读取')
 const statusText = ref('请将身份证放入读卡区域')
+
+// 添加计算属性来处理卡片读取器的状态类
+const cardReaderClass = computed(() => {
+  if (isSuccess.value) return 'success-state'
+  if (hasError.value) return 'error-state'
+  return ''
+})
+
+// 添加计算属性来处理指示文字的状态类
+const instructionTextClass = computed(() => {
+  if (isSuccess.value) return 'success-text'
+  if (hasError.value) return 'error-text'
+  if (!isReading.value) return 'typing-animation'
+  return ''
+})
 
 // 播放扫描音效
 const playCardScanSound = () => {
@@ -133,35 +148,136 @@ onMounted(() => {
 }
 
 .card-reader {
-  width: 960px; /* 从800px放大到960px */
-  height: 720px; /* 从600px放大到720px */
-  background: rgba(10, 15, 30, 0.7);
-  border-radius: 29px; /* 从24px放大到29px */
+  width: 960px;
+  height: 720px;
+  background: rgba(240, 244, 255, 0.15); /* 更浅的背景色，提高透明度 */
+  border-radius: 29px;
   box-shadow: 
-    0 0 36px rgba(0, 162, 255, 0.3),
-    0 0 72px rgba(0, 162, 255, 0.1);
+    0 0 36px rgba(120, 160, 255, 0.3),
+    0 0 72px rgba(120, 160, 255, 0.1);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px); /* 增强模糊效果 */
   overflow: hidden;
-  border: 1.2px solid rgba(0, 162, 255, 0.3); /* 从1px放大到1.2px */
+  border: 1px solid rgba(255, 255, 255, 0.2); /* 更浅的边框 */
+  /* 添加冰晶玻璃效果 */
+  background-image: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.2) 100%);
+  transition: all 0.5s ease;
 }
 
-/* 指示文字样式 */
+/* 成功状态类 */
+.card-reader.success-state {
+  background: rgba(76, 175, 80, 0.15);
+  box-shadow: 
+    0 0 36px rgba(76, 175, 80, 0.3),
+    0 0 72px rgba(76, 175, 80, 0.1);
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+/* 错误状态类 */
+.card-reader.error-state {
+  background: rgba(255, 82, 82, 0.15);
+  box-shadow: 
+    0 0 36px rgba(255, 82, 82, 0.3),
+    0 0 72px rgba(255, 82, 82, 0.1);
+  border-color: rgba(255, 82, 82, 0.3);
+}
+
+/* 修改指示文字样式以配合新的背景 */
+/* 指示文字基础样式 */
 .instruction-text {
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 34px; /* 从28px放大到34px */
-  color: #fff;
-  margin-bottom: 2.4rem; /* 从2rem放大到2.4rem */
+  font-size: 34px;
+  color: #fff; /* 默认白色 */
+  margin-bottom: 2.4rem;
   text-shadow: 
-    0 0 6px rgba(0, 162, 255, 0.8),
-    0 0 12px rgba(0, 162, 255, 0.5);
-  letter-spacing: 1.2px; /* 从1px放大到1.2px */
+    0 0 6px rgba(120, 160, 255, 0.8),
+    0 0 12px rgba(120, 160, 255, 0.5);
+  letter-spacing: 1.2px;
   text-align: center;
+  position: relative;
+  z-index: 10;
+  transition: all 0.5s ease;
 }
+
+/* 成功状态的文字颜色 */
+.instruction-text.success-text {
+  color: #4CAF50;
+  text-shadow: 
+    0 0 6px rgba(76, 175, 80, 0.8),
+    0 0 12px rgba(76, 175, 80, 0.5);
+}
+
+/* 错误状态的文字颜色 */
+.instruction-text.error-text {
+  color: #FF5252;
+  text-shadow: 
+    0 0 6px rgba(255, 82, 82, 0.8),
+    0 0 12px rgba(255, 82, 82, 0.5);
+}
+
+/* 删除之前不起作用的选择器 */
+/* 
+.id-card-placeholder.success ~ .instruction-text {
+  color: #4CAF50;
+  text-shadow: 
+    0 0 6px rgba(76, 175, 80, 0.8),
+    0 0 12px rgba(76, 175, 80, 0.5);
+}
+
+.id-card-placeholder.error ~ .instruction-text {
+  color: #FF5252;
+  text-shadow: 
+    0 0 6px rgba(255, 82, 82, 0.8),
+    0 0 12px rgba(255, 82, 82, 0.5);
+}
+*/
+
+/* 卡片读取器基础样式 */
+.card-reader {
+  width: 960px;
+  height: 720px;
+  background: rgba(240, 244, 255, 0.15);
+  border-radius: 29px;
+  box-shadow: 
+    0 0 36px rgba(120, 160, 255, 0.3),
+    0 0 72px rgba(120, 160, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  backdrop-filter: blur(15px);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-image: 
+    linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.2) 100%);
+  transition: all 0.5s ease;
+}
+
+/* 成功状态的卡片读取器样式 */
+.card-reader:has(.id-card-placeholder.success) {
+  background: rgba(76, 175, 80, 0.15);
+  box-shadow: 
+    0 0 36px rgba(76, 175, 80, 0.3),
+    0 0 72px rgba(76, 175, 80, 0.1);
+  border-color: rgba(76, 175, 80, 0.3);
+}
+
+/* 错误状态的卡片读取器样式 */
+.card-reader:has(.id-card-placeholder.error) {
+  background: rgba(255, 82, 82, 0.15);
+  box-shadow: 
+    0 0 36px rgba(255, 82, 82, 0.3),
+    0 0 72px rgba(255, 82, 82, 0.1);
+  border-color: rgba(255, 82, 82, 0.3);
+}
+
+
 
 /* 身份证占位区样式 */
 .id-card-placeholder {
@@ -474,6 +590,110 @@ onMounted(() => {
   opacity: 0.3;
   animation: rotateGlow 3s linear infinite;
 }
+
+/* 扫描线基础样式 */
+.scan-line, .scan-line-idle {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 162, 255, 0.8) 20%,
+    rgba(0, 225, 255, 1) 50%,
+    rgba(0, 162, 255, 0.8) 80%,
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 8px rgba(0, 162, 255, 0.5),
+    0 0 16px rgba(0, 162, 255, 0.3),
+    0 0 24px rgba(0, 162, 255, 0.2);
+  z-index: 2;
+}
+
+/* 空闲状态扫描线 - 自上而下缓慢扫描 */
+.scan-line-idle {
+  animation: scanLineIdleScan 4s linear infinite;
+  opacity: 0.6;
+}
+
+/* 读取状态扫描线 */
+.scan-line {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(76, 175, 80, 0.8) 20%,
+    rgba(100, 255, 100, 1) 50%,
+    rgba(76, 175, 80, 0.8) 80%,
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 8px rgba(76, 175, 80, 0.5),
+    0 0 16px rgba(76, 175, 80, 0.3),
+    0 0 24px rgba(76, 175, 80, 0.2);
+  animation: scanLineReading 1.5s linear infinite;
+}
+
+/* 修改空闲状态扫描线动画为自上而下扫描 */
+@keyframes scanLineIdleScan {
+  0% {
+    top: -4px;
+    opacity: 0.4;
+  }
+  45% {
+    opacity: 0.6;
+  }
+  55% {
+    opacity: 0.6;
+  }
+  100% {
+    top: calc(100% + 4px);
+    opacity: 0.4;
+  }
+}
+
+/* 读取状态扫描线动画保持不变 */
+@keyframes scanLineReading {
+  0% {
+    top: -4px;
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    top: calc(100% + 4px);
+    opacity: 0.8;
+  }
+}
+
+/* 修改身份证占位区样式，确保扫描线效果可见 */
+.id-card-placeholder {
+  /* ... 保持现有样式 ... */
+  background: linear-gradient(135deg, 
+    rgba(0, 20, 50, 0.6), 
+    rgba(0, 10, 30, 0.7)
+  );
+}
+
+/* 添加玻璃反光效果 */
+.id-card-placeholder::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  z-index: 1;
+}
+
 /* 动画定义 */
 @keyframes chipPulse {
   0%, 100% { 
