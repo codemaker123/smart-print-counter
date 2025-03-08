@@ -1,26 +1,28 @@
 <template>
   <div class="app-container">
-    <Header />
+    <!-- <Header /> -->
+    <Background />
     <CardReader />
-    <Footer :status="systemStatus" />
+    <!-- <Footer :status="systemStatus" /> -->
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import Header from './components/Header.vue'
+// import { ref } from 'vue'
+// import Header from './components/Header.vue'
+import Background from './components/Background.vue'
 import CardReader from './components/CardReader.vue'
-import Footer from './components/Footer.vue'
+// import Footer from './components/Footer.vue'
 
-const systemStatus = ref('系统就绪')
+// const systemStatus = ref('系统就绪')
 </script>
 
 <style>
 .app-container {
   min-height: 100vh;
-  background-color: #F3F4F6;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 * {
