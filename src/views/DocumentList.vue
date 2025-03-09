@@ -67,25 +67,13 @@
     <!-- PDF预览弹窗 -->
     <div class="pdf-preview-modal" v-if="showPreview">
       <div class="modal-content">
-        <div class="modal-header">
-          <h3>{{ currentDocument ? currentDocument.name : '文档预览' }}</h3>
-          <button class="close-btn" @click="closePreview">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div class="pdf-container">
-            <!-- 这里可以集成PDF.js或其他PDF预览组件 -->
-            <div class="pdf-placeholder">
-              <p>PDF预览区域</p>
-              <p class="pdf-loading">加载中...</p>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="action-btn print-btn" @click="printCurrentDocument">
-            <span class="btn-icon print-icon"></span>
-            <span class="btn-text">打印</span>
-          </button>
-        </div>
+        <PdfViewer 
+          v-if="currentDocument"
+          :documentUrl="getPdfUrl(currentDocument.url)"
+          :documentName="currentDocument.name"
+          @close="closePreview"
+          @document-signed="handleDocumentSigned"
+        />
       </div>
     </div>
     
@@ -96,10 +84,13 @@
 
 <script>
 import Background from '@/components/Background.vue';
+import PdfViewer from '@/components/PdfViewer.vue';
+
 export default {
   name: 'DocumentList',
   components: {
-    Background
+    Background,
+    PdfViewer
   },
   data() {
     return {
@@ -138,21 +129,21 @@ export default {
           name: '车辆保险单.pdf',
           date: '2023-03-01',
           size: '2.5MB',
-          url: '/documents/insurance.pdf'
+          url: '/pdf/insurance.pdf'
         },
         {
           id: '2',
           name: '车辆维修记录.pdf',
           date: '2023-03-05',
           size: '1.8MB',
-          url: '/documents/repair.pdf'
+          url: '/pdf/repair.pdf'
         },
         {
           id: '3',
           name: '车辆年检报告.pdf',
           date: '2023-02-15',
           size: '3.2MB',
-          url: '/documents/inspection.pdf'
+          url: '/pdf/inspection.pdf'
         }
       ];
     },
@@ -176,6 +167,15 @@ export default {
     },
     goBack() {
       this.$router.go(-1);
+    },
+    getPdfUrl(url) {
+      // 确保 PDF 文件路径正确
+      return window.location.origin + url;
+    },
+    handleDocumentSigned(data) {
+      console.log('文档已签名:', data);
+      // 这里可以处理签名后的逻辑，比如保存签名后的文档
+      alert(`文档 ${data.documentName} 已成功签名！`);
     }
   }
 };

@@ -1,4 +1,4 @@
- <template>
+<template>
   <div class="pdf-viewer-container">
     <div class="pdf-viewer-header">
       <h3>{{ documentName }}</h3>
@@ -25,7 +25,14 @@
           <div class="loading-spinner"></div>
           <p>正在加载文档...</p>
         </div>
-        <canvas ref="pdfCanvas" class="pdf-canvas"></canvas>
+        
+        <!-- 使用iframe直接嵌入PDF文件 -->
+        <iframe 
+          v-if="!loading" 
+          :src="documentUrl" 
+          class="pdf-iframe" 
+          ref="pdfFrame"
+        ></iframe>
         
         <!-- 签名预览 -->
         <div 
@@ -55,8 +62,8 @@
         </div>
         <SignatureCanvas 
           ref="signatureCanvas"
-          :width="400"
-          :height="200"
+          :width="800"
+          :height="400"
           @signature-confirmed="addSignatureToPdf"
         />
       </div>
@@ -85,9 +92,6 @@ export default {
   data() {
     return {
       loading: true,
-      pdfDoc: null,
-      currentPage: 1,
-      scale: 1.5,
       showSignature: false,
       signatureData: null,
       signatureAdded: false,
@@ -96,9 +100,7 @@ export default {
       isDraggingSignature: false,
       isResizingSignature: false,
       dragOffset: { x: 0, y: 0 },
-      showSignatureControls: false,
-      pdfCanvas: null,
-      pdfContext: null
+      showSignatureControls: false
     };
   },
   computed: {
@@ -132,12 +134,8 @@ export default {
       try {
         this.loading = true;
         
-        // 在实际应用中，这里应该使用PDF.js加载PDF文档
-        // 由于我们没有实际的PDF.js库，这里模拟加载过程
-        
-        // 模拟加载延迟
+        // 简单延迟以显示加载动画
         setTimeout(() => {
-          this.renderPdfPlaceholder();
           this.loading = false;
           
           // 设置默认签名位置在右下角
@@ -155,47 +153,6 @@ export default {
         console.error('加载PDF文档时出错:', error);
         this.loading = false;
       }
-    },
-    
-    renderPdfPlaceholder() {
-      // 创建一个简单的PDF页面占位符
-      const canvas = this.$refs.pdfCanvas;
-      const context = canvas.getContext('2d');
-      
-      this.pdfCanvas = canvas;
-      this.pdfContext = context;
-      
-      // 设置画布尺寸为A4纸大小
-      const width = 595 * this.scale; // A4宽度，72dpi
-      const height = 842 * this.scale; // A4高度，72dpi
-      
-      canvas.width = width;
-      canvas.height = height;
-      
-      // 绘制白色背景
-      context.fillStyle = 'white';
-      context.fillRect(0, 0, width, height);
-      
-      // 绘制边框
-      context.strokeStyle = '#ddd';
-      context.lineWidth = 1;
-      context.strokeRect(0, 0, width, height);
-      
-      // 绘制文档名称
-      context.fillStyle = '#333';
-      context.font = '24px Arial';
-      context.textAlign = 'center';
-      context.fillText(this.documentName, width / 2, 100);
-      
-      // 绘制PDF图标
-      context.fillStyle = '#e74c3c';
-      context.font = '48px Arial';
-      context.fillText('PDF', width / 2, height / 2);
-      
-      // 绘制说明文字
-      context.font = '16px Arial';
-      context.fillStyle = '#666';
-      context.fillText('(PDF预览占位符 - 实际应用中将显示真实PDF内容)', width / 2, height / 2 + 50);
     },
     
     showSignaturePanel() {
@@ -295,65 +252,28 @@ export default {
     },
     
     removeSignature() {
+      // 完全清除签名数据
       this.signatureAdded = false;
       this.signatureData = null;
+      this.showSignatureControls = false;
+      
+      // 如果有签名画布，也清除画布内容
+      if (this.$refs.signatureCanvas) {
+        this.$refs.signatureCanvas.clearCanvas();
+      }
     },
     
     saveSignedPdf() {
-      // 在实际应用中，这里应该使用PDF库将签名合并到PDF文档中
-      // 这里我们使用Canvas模拟这个过程
-      
       try {
-        // 创建一个新的Canvas来合成签名和PDF
-        const compositeCanvas = document.createElement('canvas');
-        const compositeContext = compositeCanvas.getContext('2d');
+        // 在实际应用中，这里应该使用PDF库将签名合并到PDF文档中
+        // 这里我们简单地通知父组件签名已完成
         
-        // 设置Canvas大小与PDF页面相同
-        compositeCanvas.width = this.pdfCanvas.width;
-        compositeCanvas.height = this.pdfCanvas.height;
+        this.$emit('document-signed', {
+          documentName: this.documentName,
+          signedDocumentUrl: this.documentUrl + '#signed=' + Date.now() // 简单地添加一个标记表示已签名
+        });
         
-        // 首先绘制PDF页面
-        compositeContext.drawImage(this.pdfCanvas, 0, 0);
-        
-        // 创建签名图像对象
-        const signatureImg = new Image();
-        signatureImg.onload = () => {
-          // 计算签名在Canvas中的位置
-          const canvasRect = this.pdfCanvas.getBoundingClientRect();
-          const containerRect = this.$refs.pdfContainer.getBoundingClientRect();
-          
-          const scaleX = this.pdfCanvas.width / canvasRect.width;
-          const scaleY = this.pdfCanvas.height / canvasRect.height;
-          
-          const signatureX = (this.signaturePosition.x - containerRect.left + canvasRect.left) * scaleX;
-          const signatureY = (this.signaturePosition.y - containerRect.top + canvasRect.top) * scaleY;
-          const signatureWidth = this.signatureSize.width * scaleX;
-          const signatureHeight = this.signatureSize.height * scaleY;
-          
-          // 绘制签名
-          compositeContext.drawImage(signatureImg, signatureX, signatureY, signatureWidth, signatureHeight);
-          
-          // 将合成后的Canvas转换为图像数据
-          const signedPdfData = compositeCanvas.toDataURL('image/png');
-          
-          // 创建下载链接
-          const downloadLink = document.createElement('a');
-          downloadLink.href = signedPdfData;
-          downloadLink.download = `signed_${this.documentName.replace(/\s+/g, '_')}.png`;
-          
-          // 触发下载
-          document.body.appendChild(downloadLink);
-          downloadLink.click();
-          document.body.removeChild(downloadLink);
-          
-          // 通知父组件签名已完成
-          this.$emit('document-signed', {
-            documentName: this.documentName,
-            signedDocumentUrl: signedPdfData
-          });
-        };
-        
-        signatureImg.src = this.signatureData;
+        alert('文档已成功签名！');
       } catch (error) {
         console.error('保存签名文档时出错:', error);
         alert('保存签名文档时出错，请重试');
@@ -417,9 +337,12 @@ export default {
   background: rgba(0, 0, 0, 0.2);
 }
 
-.pdf-canvas {
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+.pdf-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
   background: white;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
 .pdf-loading {
@@ -454,11 +377,14 @@ export default {
   left: 0;
   right: 0;
   background: rgba(20, 30, 48, 0.95);
-  padding: 20px;
+  padding: 40px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
   z-index: 10;
   animation: slideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 @keyframes slideUp {

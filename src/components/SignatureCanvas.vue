@@ -32,15 +32,15 @@ export default {
   props: {
     width: {
       type: Number,
-      default: 400
+      default: 800
     },
     height: {
       type: Number,
-      default: 200
+      default: 400
     },
     lineWidth: {
       type: Number,
-      default: 3
+      default: 5
     },
     lineColor: {
       type: String,
@@ -171,8 +171,19 @@ export default {
     },
     
     clearCanvas() {
+      // 完全重置画布
       this.ctx.fillStyle = this.backgroundColor;
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      
+      // 确保清除所有像素
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+      
+      // 重新设置线条样式，确保后续绘制正常
+      this.ctx.lineWidth = this.lineWidth;
+      this.ctx.lineCap = 'round';
+      this.ctx.lineJoin = 'round';
+      this.ctx.strokeStyle = this.lineColor;
     },
     
     confirmSignature() {
@@ -203,7 +214,7 @@ export default {
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   background: rgba(255, 255, 255, 0.9);
 }
 
@@ -215,19 +226,19 @@ export default {
 
 .canvas-controls {
   display: flex;
-  gap: 15px;
-  margin-top: 10px;
+  gap: 20px;
+  margin-top: 15px;
 }
 
 .control-btn {
   display: flex;
   align-items: center;
-  padding: 8px 15px;
+  padding: 10px 20px;
   border: none;
-  border-radius: 20px;
+  border-radius: 25px;
   cursor: pointer;
   font-family: 'Noto Sans SC', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   transition: all 0.3s ease;
   color: white;
