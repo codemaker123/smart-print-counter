@@ -196,6 +196,18 @@ export default {
       }
       
       // 这里可以添加后续逻辑，如验证和提交数据
+      // 模拟客户ID，实际应用中应该从后端获取
+      const customerId = 'customer_' + Date.now();
+      
+      // 跳转到文档列表页面，并传递客户ID参数
+      this.$router.push({ 
+        path: '/document-list', 
+        query: { 
+          customerId: customerId,
+          licensePlate: this.fullLicensePlate,
+          fieldValue: this.firstFieldValue
+        } 
+      });
     },
     focusFirstField() {
       // 设置输入类型为预约码/发货单号

@@ -4,6 +4,7 @@ import IdCardReader from '@/views/IdCardReader.vue'
 import SelfPickup from '@/views/SelfPickup.vue'
 // 导入新的视图组件
 import InfoEntry from '@/views/InfoEntry.vue'
+import DocumentList from '@/views/DocumentList.vue'
 
 // Vue.use(VueRouter)
 
@@ -26,6 +27,11 @@ const routes = [
     path: '/info-entry',
     name: 'InfoEntry',
     component: InfoEntry
+  },
+  {
+    path: '/document-list',
+    name: 'DocumentList',
+    component: DocumentList
   },
 ]
 
