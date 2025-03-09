@@ -29,7 +29,7 @@
         <!-- 使用iframe直接嵌入PDF文件 -->
         <iframe 
           v-if="!loading" 
-          :src="documentUrl" 
+          :src="getPdfViewerUrl(documentUrl)" 
           class="pdf-iframe" 
           ref="pdfFrame"
         ></iframe>
@@ -153,6 +153,13 @@ export default {
         console.error('加载PDF文档时出错:', error);
         this.loading = false;
       }
+    },
+    
+    // 获取带有参数的PDF URL，用于控制工具栏显示
+    getPdfViewerUrl(url) {
+      // 使用 URL 参数来控制 PDF 查看器的工具栏
+      // toolbar=0 隐藏工具栏，但我们会添加自己的缩放控制
+      return `${url}#toolbar=0&navpanes=0&scrollbar=1&zoom=100`;
     },
     
     showSignaturePanel() {
