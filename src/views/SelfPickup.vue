@@ -33,14 +33,14 @@ export default {
     handleYes() {
       // 处理有预约码的情况
       console.log('用户选择：有预约码');
-      // 这里可以添加后续逻辑，如跳转到输入预约码的页面
-      this.$router.push('/info-entry');
+      // 跳转到信息录入页面，并传递参数表示有预约码
+      this.$router.push({ path: '/info-entry', query: { hasReservation: 'true' } });
     },
     handleNo() {
       // 处理没有预约码的情况
       console.log('用户选择：没有预约码');
-      // 这里可以添加后续逻辑
-      this.$router.push('/info-entry');
+      // 跳转到信息录入页面，并传递参数表示没有预约码
+      this.$router.push({ path: '/info-entry', query: { hasReservation: 'false' } });
     }
   }
 }
